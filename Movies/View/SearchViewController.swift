@@ -8,13 +8,13 @@
 import UIKit
 
 class SearchViewController: UIViewController {
-
+	
 	var viewModel: PopularTopSearchViewModelType!
 	
 	private let searchController = UISearchController(searchResultsController: nil)
 	private let screenView = CollectionView()
 	private var isLoadMore: Int = 0
-
+	
 	init(viewModel: PopularTopSearchViewModelType) {
 		super.init(nibName: nil, bundle: nil)
 		
@@ -25,13 +25,13 @@ class SearchViewController: UIViewController {
 		fatalError("init(coder:) has not been implemented")
 	}
 	
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
+	override func viewDidLoad() {
+		super.viewDidLoad()
+		
 		self.setupSearchController()
 		self.setupView()
 		
-    }
+	}
 	
 	private func setupSearchController() {
 		self.searchController.searchBar.delegate = self
@@ -82,18 +82,27 @@ class SearchViewController: UIViewController {
 			}
 		}
 	}
-    
+	
 }
 
 
 extension SearchViewController: UISearchBarDelegate {
 	func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-		if searchText != "" && searchText != " " {
-			self.viewModel.search(searchText)
-			self.bind()
-		} else {
-			self.screenView.startActivityIndicator()
-			self.viewModel.clear()
+		NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(self.find(searchBar:)), object: searchBar)
+		perform(#selector(self.find(searchBar:)), with: searchBar, afterDelay: 0.5)
+	}
+	
+	
+	@objc func find(searchBar: UISearchBar) {
+		
+		if let text = searchBar.text {
+			if text != "" && text != " " {
+				self.viewModel.search(text)
+				self.bind()
+			} else {
+				self.screenView.startActivityIndicator()
+				self.viewModel.clear()
+			}
 		}
 	}
 	
